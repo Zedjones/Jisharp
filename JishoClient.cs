@@ -15,8 +15,11 @@ namespace jisharp
         {
             this.client = new HttpClient();
         }
-        public async Task<Dictionary<string, dynamic>> SearchWord(string word)
+        public async Task<Dictionary<string, dynamic>> SearchWord(string word, bool english = false)
         {
+            if (english) {
+                word = string.Format("\"{0}\"", word);
+            }
             var resp = await client.GetAsync(string.Format(BASE_URL, word));
             var wordDict = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(await resp.Content.ReadAsStringAsync());
             return wordDict;
@@ -24,7 +27,7 @@ namespace jisharp
         static void Main(string[] args)
         {
             var client = new JishoClient();
-            var searchTask = client.SearchWord("iie");
+            var searchTask = client.SearchWord("no", true);
             searchTask.Wait();
             foreach (var pair in searchTask.Result)
             {
