@@ -15,16 +15,21 @@ namespace jisharp
         {
             this.client = new HttpClient();
         }
-        public async Task<Dictionary<string, dynamic>> SearchWord(string word) {
+        public async Task<Dictionary<string, dynamic>> SearchWord(string word)
+        {
             var resp = await client.GetAsync(string.Format(BASE_URL, word));
             var wordDict = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(await resp.Content.ReadAsStringAsync());
             return wordDict;
         }
-        static void Main(string[] args) {
+        static void Main(string[] args)
+        {
             var client = new JishoClient();
             var searchTask = client.SearchWord("iie");
             searchTask.Wait();
-            Console.WriteLine(searchTask.Result);
+            foreach (var pair in searchTask.Result)
+            {
+                Console.WriteLine("Key = {0}, Value = {1}", pair.Key, pair.Value);
+            }
         }
     }
 }
