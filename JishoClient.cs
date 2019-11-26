@@ -23,16 +23,70 @@ namespace jisharp
             }
             var resp = await client.GetAsync(string.Format(BASE_URL, word));
             var wordDict = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(await resp.Content.ReadAsStringAsync());
-            foreach (var pair in wordDict)
-            {
-                Console.WriteLine("Key = {0}, Value = {1}", pair.Key, pair.Value);
-            }
             return CreateWords(wordDict);
         }
-        List<Word> CreateWords(Dictionary<string, dynamic> wordDict)
+        List<Word> CreateWords(Dictionary<string, dynamic> wordsDict)
         {
             var wordList = new List<Word>();
+            foreach (var wordDict in wordsDict["data"])
+            {
+                var wordObj = wordDict as Newtonsoft.Json.Linq.JObject;
+                var japaneseWords = CreateJpWords(wordObj);
+                var englishDefinitions = CreateEngDefs(wordObj);
+                var isCommon = Boolean.Parse(wordObj["is_common"].ToString());
+                var tags = new List<string>();
+                foreach (var tag in wordObj["tags"]) {
+                    tags.Add(tag.ToString());
+                }
+                var word = new Word {
+                    EnglishDefinitions = englishDefinitions,
+                    JapaneseWords = japaneseWords,
+                    IsCommon = isCommon,
+                    Tags = tags
+                };
+                wordList.Add(word);
+            }
             return wordList;
+        }
+        List<JapaneseWord> CreateJpWords(Newtonsoft.Json.Linq.JObject wordObj)
+        {
+            var japaneseWords = new List<JapaneseWord>();
+            foreach (var japaneseWordObj in wordObj["japanese"])
+            {
+                var japaneseWord = new JapaneseWord
+                {
+                    Reading = japaneseWordObj["reading"].ToString(),
+                    Word = japaneseWordObj["word"].ToString()
+                };
+                japaneseWords.Add(japaneseWord);
+            }
+            return japaneseWords;
+        }
+        List<EnglishDefinition> CreateEngDefs(Newtonsoft.Json.Linq.JObject wordObj)
+        {
+            var englishDefinitions = new List<EnglishDefinition>();
+            foreach (var englishDefObj in wordObj["senses"])
+            {
+                var definitions = new List<string>();
+                var partsOfSpeech = new List<string>();
+                var tags = new List<string>();
+                foreach (var definition in englishDefObj["english_definitions"]) {
+                    definitions.Add(definition.ToString());
+                }
+                foreach (var partOfSpeech in englishDefObj["parts_of_speech"]) {
+                    partsOfSpeech.Add(partOfSpeech.ToString());
+                }
+                foreach (var tag in englishDefObj["tags"]) {
+                    tags.Add(tag.ToString());
+                }
+                var englishDefinition = new EnglishDefinition {
+                    Definitions = definitions,
+                    PartsOfSpeech = partsOfSpeech,
+                    Tags = tags
+                };
+                englishDefinitions.Add(englishDefinition);
+            }
+            return englishDefinitions;
         }
         static void Main(string[] args)
         {
