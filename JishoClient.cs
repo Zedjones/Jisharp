@@ -17,7 +17,7 @@ namespace jisharp
         }
         public async Task<Dictionary<string, dynamic>> SearchWord(string word, bool english = false)
         {
-            if (english) {
+            if (english && !word.Contains('"')) {
                 word = string.Format("\"{0}\"", word);
             }
             var resp = await client.GetAsync(string.Format(BASE_URL, word));
@@ -27,7 +27,7 @@ namespace jisharp
         static void Main(string[] args)
         {
             var client = new JishoClient();
-            var searchTask = client.SearchWord("no", true);
+            var searchTask = client.SearchWord("gakkou");
             searchTask.Wait();
             foreach (var pair in searchTask.Result)
             {
