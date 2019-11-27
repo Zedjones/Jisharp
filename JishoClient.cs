@@ -33,7 +33,11 @@ namespace jisharp
                 var wordObj = wordDict as Newtonsoft.Json.Linq.JObject;
                 var japaneseWords = CreateJpWords(wordObj);
                 var englishDefinitions = CreateEngDefs(wordObj);
-                var isCommon = Boolean.Parse(wordObj["is_common"].ToString());
+                var commonString = wordObj["is_common"]?.ToString();
+                bool? isCommon = null;
+                if(!(commonString is null)) {
+                    isCommon = Boolean.Parse(commonString);
+                }
                 var tags = new List<string>();
                 foreach (var tag in wordObj["tags"]) {
                     tags.Add(tag.ToString());
@@ -53,10 +57,12 @@ namespace jisharp
             var japaneseWords = new List<JapaneseWord>();
             foreach (var japaneseWordObj in wordObj["japanese"])
             {
+                var word = japaneseWordObj["word"]?.ToString() ?? "";
+                var reading = japaneseWordObj["reading"]?.ToString() ?? "";
                 var japaneseWord = new JapaneseWord
                 {
-                    Reading = japaneseWordObj["reading"].ToString(),
-                    Word = japaneseWordObj["word"].ToString()
+                    Reading = reading,
+                    Word = word
                 };
                 japaneseWords.Add(japaneseWord);
             }
@@ -91,8 +97,9 @@ namespace jisharp
         static void Main(string[] args)
         {
             var client = new JishoClient();
-            var searchTask = client.SearchWord("iie");
+            var searchTask = client.SearchWord("vinland");
             searchTask.Wait();
+            System.Console.WriteLine(searchTask.Result);
         }
     }
 }

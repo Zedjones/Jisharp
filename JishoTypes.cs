@@ -5,7 +5,7 @@ namespace jisharp
     public struct Word
     {
         public List<EnglishDefinition> EnglishDefinitions { get; set; }
-        public bool IsCommon { get; set; }
+        public bool? IsCommon { get; set; }
         public List<string> Tags { get; set; }
         public List<JapaneseWord> JapaneseWords { get; set; }
     }
