@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Net.Http;
 using System.Collections.Generic;
@@ -22,15 +23,15 @@ namespace jisharp
                 word = string.Format("\"{0}\"", word);
             }
             var resp = await client.GetAsync(string.Format(BASE_URL, word));
-            var wordObj = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JObject>(await resp.Content.ReadAsStringAsync());
+            var wordObj = JsonConvert.DeserializeObject<JObject>(await resp.Content.ReadAsStringAsync());
             return JsonConvert.DeserializeObject<IEnumerable<Word>>(wordObj["data"].ToString());
         }
         static void Main(string[] args)
         {
             var client = new JishoClient();
-            var searchTask = client.SearchWord("iie");
+            var searchTask = client.SearchWord("vinland");
             searchTask.Wait();
-            System.Console.WriteLine(searchTask.Result);
+            Console.WriteLine(searchTask.Result);
         }
     }
 }
